@@ -61,10 +61,10 @@ let camera, scene, renderer;
             let matTopTrunk = new THREE.MeshBasicMaterial({ color: "green" });
             let matBlackEye = new THREE.MeshBasicMaterial({ color: "black" });
 
-            const geometry = new THREE.CylinderGeometry( 5, 5, 20, 32 );
-            const material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
-            const cylinder = new THREE.Mesh( geometry, material );
-            scene.add( cylinder );
+            // const geometry = new THREE.CylinderGeometry( 5, 5, 20, 32 );
+            // const material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+            // const cylinder = new THREE.Mesh( geometry, material );
+            // scene.add( cylinder );
 
             /* VASE */
             vase = new THREE.Mesh(geoVase, matVase);
@@ -158,6 +158,7 @@ let camera, scene, renderer;
 
             scene.add(trunk);
             trunk.add(topTrunk)
+            // topTrunk.add(cylinder);
             trunk.add(leftEye)
             leftEye.add(leftBlackEye)
             trunk.add(rightEye)
@@ -227,6 +228,7 @@ let camera, scene, renderer;
 
         document.addEventListener("keyup", event => {
             if (event.key == 'a') {
+                
                 shoulderRotation = false;
             }
             if (event.key == 'd') {
@@ -256,6 +258,7 @@ let camera, scene, renderer;
             let targetY = mousePos.y * 100;
             // console.log(mousePos.x, mousePos.y)
             console.log(targetY);
+           
 
             // update the airplane's position
             // leftEye.position.x = targetX;
