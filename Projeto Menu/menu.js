@@ -4,7 +4,7 @@ let camera, scene, renderer;
 let cameraX = 0, cameraY = 2
 let flatCircle
 let shoulderR, shoulderL, elbowR, elbowL; // PIVOTS (Object3D)
-let body, bodySize, legSize, headSize;
+let body, bodySize, legSize, headSize, shoesSize;
 
 let circleRotationRight = false, circleRotationLeft = false
 let shoulderRRotation = false, shoulderRRotationDown = false
@@ -38,23 +38,41 @@ window.onload = function init() {
     document.body.appendChild(renderer.domElement);
 
 
-
-    let flatCircleColor = new THREE.TextureLoader().load('images/sackboy/circle.png')
-    let circle = new THREE.MeshPhongMaterial({ map: flatCircleColor });
-    let circleSize = { r:25 }
+    /* STAGE */
+    /** IMAGENS/CORES */
+    let stageGround = new THREE.TextureLoader().load('images/stage/wood.png')
+    stageGround.wrapS = THREE.RepeatWrapping;
+    stageGround.wrapT = THREE.RepeatWrapping;
+    stageGround.repeat.set(5,5)
+    let poleColor = new THREE.TextureLoader().load('images/stage/pole.png')
     
-    let geoFlatCircle = new THREE.CircleGeometry(circleSize.r, 100);
-    flatCircle = new THREE.Mesh(geoFlatCircle, circle);
+    let circle = new THREE.MeshPhongMaterial({ map: stageGround })
+    let poleStick = new THREE.MeshPhongMaterial({ map: poleColor })
+
+    /** SIZES */
+    let circleSize = { r:25 }
+    let poleSize = { x:0.5 , y:0.5 , z:20 }
+    
+    /** GEOMETRY */
+    let geoFlatCircle = new THREE.CircleGeometry(circleSize.r, 100)
+    let geoPole = new THREE.CylinderGeometry(poleSize.x,poleSize.y,poleSize.z)
+
+    /** STAGE */
+    flatCircle = new THREE.Mesh(geoFlatCircle, circle)
     flatCircle.position.set(0 , -3 , -(circleSize.r)+2)
     flatCircle.rotation.x = -Math.PI/2
 
+    /** POLE */
+    let pole = new THREE.Mesh(geoPole, poleStick)
+    pole.rotation.x = -Math.PI/2
+    pole.position.z = poleSize.z/2
+
     scene.add(flatCircle);
+    flatCircle.add(pole);
 
 
 
     lights()
-
-    // joinObjects()
 
     /* Viviana's object */
     sackboy(flatCircle, circleSize)
@@ -98,18 +116,19 @@ function sackboy(flatCircle, circleSize) {
 
     /** OBJ. SIZES */
     headSize = { r:1.2 }
-    let eyeSize = { r:0.2 }
     bodySize = { x:0.7 , y:1 , z:2 }
+    legSize = { x:0.3, y:0.35 , z:1.5 }
+    let eyeSize = { r:0.21 }
     let armSize = { x:0.2 , y:0.3 , z:0.8 }
     let forearmSize = { x:armSize.y , y:armSize.x , z:armSize.z }
-    legSize = { x:0.3, y:0.35 , z:1.5 }
 
     let handSize = { r:0.2 }
 
     /** OBJ. CLOTHING SIZES */
-    let shoesSize = { x:legSize.x+0.15, y:legSize.y+0.2 , z:0.4 }
+    shoesSize = { x:legSize.x+0.15, y:legSize.y+0.2 , z:0.4 }
     let tieMiddleSize = { r:0.12 }
-
+    let ribbonSize = { r:0.15 }
+    let ribbonLateralsSize = { r:0.24 }
 
     /** GEOMETRY */
     let geoHead = new THREE.SphereGeometry(headSize.r);
@@ -123,7 +142,8 @@ function sackboy(flatCircle, circleSize) {
     /** GEOMETRY CLOTHING */
     let geoShoe = new THREE.CylinderGeometry(shoesSize.x, shoesSize.y, shoesSize.z);
     let geoMiddleTie = new THREE.SphereGeometry(tieMiddleSize.r);
-
+    let geoRibbon = new THREE.SphereGeometry(ribbonSize.r);
+    let geoRibbonLaterals = new THREE.SphereGeometry(ribbonLateralsSize.r);
     /** HEAD */
     let head = new THREE.Mesh(geoHead, skin);
     head.position.set(0 , bodySize.z/2+headSize.r , 0)
@@ -201,6 +221,20 @@ function sackboy(flatCircle, circleSize) {
     tieLength3.position.y = bodySize.y/2 + tieMiddleSize.r - 0.68
     tieLength3.position.z = bodySize.y/2 + tieMiddleSize.r + 0.2
 
+    /** RIBBON */
+    let ribbon = new THREE.Mesh(geoRibbon, dress);
+    ribbon.position.y = headSize.r - headSize.r/4
+    ribbon.position.z = headSize.r - headSize.r/4.5
+    
+    let ribbonLateralRight = new THREE.Mesh(geoRibbonLaterals, dress);
+    ribbonLateralRight.position.y = headSize.r - headSize.r/4
+    ribbonLateralRight.position.z = headSize.r - headSize.r/4.5
+    ribbonLateralRight.position.x = ribbonLateralsSize.r
+
+    let ribbonLateralLeft = new THREE.Mesh(geoRibbonLaterals, dress);
+    ribbonLateralLeft.position.y = headSize.r - headSize.r/4
+    ribbonLateralLeft.position.z = headSize.r - headSize.r/4.5
+    ribbonLateralLeft.position.x = -ribbonLateralsSize.r
 
     /** ADDING TO SCENES */
     flatCircle.add(body);
@@ -226,10 +260,13 @@ function sackboy(flatCircle, circleSize) {
     body.add(tieLength);
     body.add(tieLength2);
     body.add(tieLength3);
+    head.add(ribbon);
+    head.add(ribbonLateralRight);
+    head.add(ribbonLateralLeft);
 
     /* POSIÇÃO NO CÍRCULO */
     body.rotation.x = Math.PI/2
-    body.position.z = bodySize.y + legSize.z
+    body.position.z = bodySize.y + legSize.z + shoesSize.z
     body.position.y = -circleSize.r + circleSize.r/10
     
     // /* AXES */
@@ -317,7 +354,7 @@ function render() {
         if (body.position.z >= (bodySize.y+legSize.z+headSize.r)+0.3) {
             jumpingDown = true
         }
-    } else if (jumpingUp && jumpingDown && body.position.z >= bodySize.y+legSize.z) {
+    } else if (jumpingUp && jumpingDown && body.position.z >= bodySize.y+legSize.z+shoesSize.z) {
         body.position.z -= 0.1
     } else {
         jumpingUp = false
