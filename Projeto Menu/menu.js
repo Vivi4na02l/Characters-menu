@@ -2,9 +2,11 @@ import * as THREE from './libs/three.module.js';
 
 let camera, scene, renderer;
 let cameraX = 0, cameraY = 2
+let flatCircle
 let shoulderR, shoulderL, elbowR, elbowL; // PIVOTS (Object3D)
-let body
+let body, bodySize, legSize, headSize;
 
+let circleRotationRight = false, circleRotationLeft = false
 let shoulderRRotation = false, shoulderRRotationDown = false
 let shoulderLRotation = false, shoulderLRotationDown = false
 let elbowRRotation = false, elbowRRotationDown = false
@@ -19,7 +21,7 @@ window.onload = function init() {
 
     // create a camera, which defines where we're looking at
     const aspect = window.innerWidth / window.innerHeight;
-    camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 10);
+    camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 100);
     camera.position.x = cameraX;
     camera.position.y = cameraY;
     camera.position.z = 8;
@@ -30,15 +32,32 @@ window.onload = function init() {
     renderer = new THREE.WebGLRenderer({ antialias: false }); // aliasing (jagged edges when rendering)
     renderer.setSize(window.innerWidth, window.innerHeight);
     // configure renderer clear color
-    renderer.setClearColor("#222222");
+    renderer.setClearColor("#72bde0");
 
     // add the output of the renderer to an HTML element (this case, the body)
     document.body.appendChild(renderer.domElement);
 
+
+
+    let flatCircleColor = new THREE.TextureLoader().load('images/sackboy/circle.png')
+    let circle = new THREE.MeshPhongMaterial({ map: flatCircleColor });
+    let circleSize = { r:25 }
+    
+    let geoFlatCircle = new THREE.CircleGeometry(circleSize.r, 100);
+    flatCircle = new THREE.Mesh(geoFlatCircle, circle);
+    flatCircle.position.set(0 , -3 , -(circleSize.r)+2)
+    flatCircle.rotation.x = -Math.PI/2
+
+    scene.add(flatCircle);
+
+
+
     lights()
 
+    // joinObjects()
+
     /* Viviana's object */
-    sackboy()
+    sackboy(flatCircle, circleSize)
 
     /*****************************
      * ANIMATE 
@@ -56,11 +75,13 @@ function lights() {
     scene.add(light2)
 }
 
-function sackboy() {
+function sackboy(flatCircle, circleSize) {
 
     let skinColor = new THREE.TextureLoader().load('images/sackboy/skin.png')
     let eyesColor = new THREE.TextureLoader().load('images/sackboy/eyes.png')
     let shoesColor = new THREE.TextureLoader().load('images/sackboy/shoes.png')
+    let tieColor = new THREE.TextureLoader().load('images/sackboy/circle.png')
+    let dressColor = new THREE.TextureLoader().load('images/sackboy/dress.png')
     // texture.wrapS = THREE.RepeatWrapping;
     // texture.wrapT = THREE.RepeatWrapping;
     // texture.repeat.set( 3, 3 );
@@ -68,25 +89,26 @@ function sackboy() {
     // flatShading: true, 
     let skin = new THREE.MeshPhongMaterial({ map: skinColor });
     let eyes = new THREE.MeshPhongMaterial({ map: eyesColor });
-    let shoes = new THREE.MeshPhongMaterial({map: shoesColor})
+    let shoes = new THREE.MeshPhongMaterial({ map: shoesColor });
+    let tie = new THREE.MeshPhongMaterial({ map: tieColor });
+    let dress = new THREE.MeshPhongMaterial({ map: dressColor });
 
     // let materialSkin = new THREE.MeshBasicMaterial({ color: 0xa88e64 });
     
 
     /** OBJ. SIZES */
-    let headSize = { r:1.2 }
+    headSize = { r:1.2 }
     let eyeSize = { r:0.2 }
-    let bodySize = { x:0.7 , y:1 , z:2 }
+    bodySize = { x:0.7 , y:1 , z:2 }
     let armSize = { x:0.2 , y:0.3 , z:0.8 }
     let forearmSize = { x:armSize.y , y:armSize.x , z:armSize.z }
-    let legSize = { x:0.3, y:0.35 , z:1.5 }
+    legSize = { x:0.3, y:0.35 , z:1.5 }
 
     let handSize = { r:0.2 }
 
     /** OBJ. CLOTHING SIZES */
     let shoesSize = { x:legSize.x+0.15, y:legSize.y+0.2 , z:0.4 }
-    let tieHeadUpSize = { x:0.1 , y:0.25 , z:0.2 }
-    let tieHeadDownSize = { x:tieHeadUpSize.y , y:tieHeadUpSize.x , z:tieHeadUpSize.z }
+    let tieMiddleSize = { r:0.12 }
 
 
     /** GEOMETRY */
@@ -100,7 +122,7 @@ function sackboy() {
     let geoHand = new THREE.SphereGeometry(handSize.r);
     /** GEOMETRY CLOTHING */
     let geoShoe = new THREE.CylinderGeometry(shoesSize.x, shoesSize.y, shoesSize.z);
-    let geoTieHeadUp = new THREE.CylinderGeometry(tieHeadUpSize.x, tieHeadUpSize.y, tieHeadUpSize.z);
+    let geoMiddleTie = new THREE.SphereGeometry(tieMiddleSize.r);
 
     /** HEAD */
     let head = new THREE.Mesh(geoHead, skin);
@@ -113,7 +135,7 @@ function sackboy() {
     eyeL.position.set(-(headSize.r/2-eyeSize.r/2) , 0 , headSize.r)
 
     /** BODY */
-    body = new THREE.Mesh(geoBody, skin);
+    body = new THREE.Mesh(geoBody, dress);
     
     /** SHOULDER(PIVOT) */
     shoulderR = new THREE.Object3D();
@@ -124,9 +146,9 @@ function sackboy() {
     shoulderL.rotation.z = -0.27
 
     /** ARMS */
-    let armR = new THREE.Mesh(geoArm, skin);
+    let armR = new THREE.Mesh(geoArm, dress);
     armR.position.y = -armSize.z/2
-    let armL = new THREE.Mesh(geoArm, skin);
+    let armL = new THREE.Mesh(geoArm, dress);
     armL.position.y = -armSize.z/2
 
     /** ELBOW(PIVOT) */
@@ -164,16 +186,24 @@ function sackboy() {
     shoeL.position.y = -legSize.z/2
 
     /** TIE */
-    let tieHeadUp = new THREE.Mesh(geoTieHeadUp, skin);
-    tieHeadUp.position.x = bodySize.x/2 - tieHeadUpSize.z
-    tieHeadUp.position.y = bodySize.y/2 + tieHeadUpSize.z
-    tieHeadUp.position.z = bodySize.y/2 + tieHeadUpSize.y
-    // tieHeadUp.position.y = -bodySize.z/2 - legSize.z/2
+    let tieLength = new THREE.Mesh(geoMiddleTie, tie);
+    tieLength.position.x = bodySize.x/2 - tieMiddleSize.r - 0.2
+    tieLength.position.y = bodySize.y/2 + tieMiddleSize.r + 0.11
+    tieLength.position.z = bodySize.y/2 + tieMiddleSize.r + 0.2
 
+    let tieLength2 = new THREE.Mesh(geoMiddleTie, tie);
+    tieLength2.position.x = bodySize.x/2 - tieMiddleSize.r - 0.2
+    tieLength2.position.y = bodySize.y/2 + tieMiddleSize.r - 0.30
+    tieLength2.position.z = bodySize.y/2 + tieMiddleSize.r + 0.2
+
+    let tieLength3 = new THREE.Mesh(geoMiddleTie, tie);
+    tieLength3.position.x = bodySize.x/2 - tieMiddleSize.r - 0.2
+    tieLength3.position.y = bodySize.y/2 + tieMiddleSize.r - 0.68
+    tieLength3.position.z = bodySize.y/2 + tieMiddleSize.r + 0.2
 
 
     /** ADDING TO SCENES */
-    scene.add(body);
+    flatCircle.add(body);
     body.add(head);
     head.add(eyeR);
     head.add(eyeL);
@@ -193,26 +223,48 @@ function sackboy() {
     /** ADDING CLOTHING TO SCENES */
     legR.add(shoeR);
     legL.add(shoeL);
-    body.add(tieHeadUp);
-    
-    /* AXES */
-    /** SHOULDER */
-    let axesShoulder = new THREE.AxesHelper(4);
-    shoulderR.add(axesShoulder);
+    body.add(tieLength);
+    body.add(tieLength2);
+    body.add(tieLength3);
 
-    /** ARM */
-    let axesArm = new THREE.AxesHelper(2);
-    armR.add(axesArm);
-
-    /** ELBOW */
-    let axesElbow = new THREE.AxesHelper(4);
-    elbowR.add(axesElbow);
+    /* POSIÇÃO NO CÍRCULO */
+    body.rotation.x = Math.PI/2
+    body.position.z = bodySize.y + legSize.z
+    body.position.y = -circleSize.r + circleSize.r/10
     
-    /** FOREARM */
-    let axesForearm = new THREE.AxesHelper(2);
-    forearmR.add(axesForearm);
+    // /* AXES */
+    // /** SHOULDER */
+    // let axesShoulder = new THREE.AxesHelper(4);
+    // shoulderR.add(axesShoulder);
+
+    // /** ARM */
+    // let axesArm = new THREE.AxesHelper(2);
+    // armR.add(axesArm);
+
+    // /** ELBOW */
+    // let axesElbow = new THREE.AxesHelper(4);
+    // elbowR.add(axesElbow);
+    
+    // /** FOREARM */
+    // let axesForearm = new THREE.AxesHelper(2);
+    // forearmR.add(axesForearm);
 
 }
+
+
+// function joinObjects() {
+    // let flatCircleColor = new THREE.TextureLoader().load('images/sackboy/circle.png')
+    // let circle = new THREE.MeshPhongMaterial({ map: flatCircleColor });
+    // let circleSize = { r:25 }
+    
+    // let geoFlatCircle = new THREE.CircleGeometry(circleSize.r, 100);
+    // let flatCircle = new THREE.Mesh(geoFlatCircle, circle);
+    // flatCircle.position.set(0 , -3 , -(circleSize.r)+2)
+    // flatCircle.rotation.x = -Math.PI/2
+
+    // scene.add(flatCircle);
+// }
+
 
 /*****************************
 * ANIMATION FUNCTION 
@@ -260,16 +312,22 @@ function render() {
     }
     
     // jumping animation
-    if (jumpingUp && !jumpingDown && body.position.y != 0.8) {
-        body.position.y += 0.1
-        if (body.position.y >= 1) {
+    if (jumpingUp && !jumpingDown && body.position.z != bodySize.y) {
+        body.position.z += 0.1
+        if (body.position.z >= (bodySize.y+legSize.z+headSize.r)+0.3) {
             jumpingDown = true
         }
-    } else if (jumpingUp && jumpingDown && body.position.y >= 0) {
-        body.position.y -= 0.1
+    } else if (jumpingUp && jumpingDown && body.position.z >= bodySize.y+legSize.z) {
+        body.position.z -= 0.1
     } else {
         jumpingUp = false
         jumpingDown = false
+    }
+
+    if (circleRotationRight) {
+        flatCircle.rotation.z += 0.01
+    } if (circleRotationLeft) {
+        flatCircle.rotation.z -= 0.01
     }
 
     // render the scene into viewport using the camera
@@ -281,11 +339,11 @@ function render() {
 * KEYBOARD EVENTS 
 * ***************************/
 document.addEventListener("keydown", event => {
-    if (event.key == 'ArrowUp') {
+    if (event.key == 'i') {
         shoulderRRotation = true
         shoulderRRotationDown = false
     }
-    if (event.key == 'ArrowLeft') {
+    if (event.key == 'j') {
         elbowRRotation = true
         elbowRRotationDown = false
     }
@@ -302,14 +360,21 @@ document.addEventListener("keydown", event => {
     if (event.key == ' ') {
         jumpingUp = true
     }
+
+    if (event.key == 'ArrowRight') {
+        circleRotationRight = true
+    }
+    if (event.key == 'ArrowLeft') {
+        circleRotationLeft = true
+    }
 })
 
 document.addEventListener("keyup", event => {
-    if (event.key == 'ArrowUp') {
+    if (event.key == 'j') {
         shoulderRRotation = false
         shoulderRRotationDown = true
     }
-    if (event.key == 'ArrowLeft') {
+    if (event.key == 'i') {
         elbowRRotation = false
         elbowRRotationDown = true
     }
@@ -323,19 +388,26 @@ document.addEventListener("keyup", event => {
         elbowLRotationDown = true
     }
 
-    if (event.key == 'w') {
-        elbowR.children[1].material.wireframe = false
+    if (event.key == 'ArrowRight') {
+        circleRotationRight = false
+    }
+    if (event.key == 'ArrowLeft') {
+        circleRotationLeft = false
     }
 })
 
 document.querySelector('#btnLeft').addEventListener('click', e => {
-    cameraX = cameraX + 1
-    camera.position.x = cameraX;
+    // cameraX = cameraX + 1
+    // camera.position.x = cameraX;
+
+    flatCircle.rotation.z -= 0.2
 })
 
 document.querySelector('#btnRight').addEventListener('click', e => {
-    cameraX = cameraX - 1
-    camera.position.x = cameraX;
+    // cameraX = cameraX - 1
+    // camera.position.x = cameraX;
+
+    flatCircle.rotation.z += 0.2
 })
 
 document.querySelector('#btnUp').addEventListener('click', e => {
