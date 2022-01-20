@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Basic ThreeJS APP</title>
+    <style>
+        body {
+            /* set margin to 0 and overflow to hidden, to use the complete page */
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- HTML body will hold the Output -->
+
+    <script type="module">
+        import * as THREE from './libs/three.module.js';
+
+        let camera, scene, renderer;
+        let ball1, ball2, ball3, nose
+
+        let shoulderRotationUp = false
+        let shoulderRotationDown = false
+        let elbowRotationUp = false
+        let elbowRotationDown = false
+        // once everything is loaded, we run our Three.js stuff
+        window.onload = function init() {
+
+            // create an empty scene, that will hold all our elements such as objects, cameras and lights
+            scene = new THREE.Scene();
+
+            // create a camera, which defines where we're looking at
+            const aspect = window.innerWidth / window.innerHeight;
+            camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 10);
+            camera.position.y = 2;
+            camera.position.z = 8;
+            camera.lookAt(scene.position); //point the camera to the center of the scene
+
+
+            // create a render and set the size
+            renderer = new THREE.WebGLRenderer({ antialias: false }); // aliasing (jagged edges when rendering)
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            // configure renderer clear color
+            renderer.setClearColor("#000000");
+
+            // add the output of the renderer to an HTML element (this case, the body)
+            document.body.appendChild(renderer.domElement);
+
+
+            /**********************************************************************************
+             * ROBOTIC ARM: SHOULDER (pivot) -> ARM (mesh) -> ELBOW (pivot) -> FOREARM (mesh)
+             * ********************************************************************************/
+            // define a parallelepiped geometry and a normal material for the meshes (arm & forearm)
+            let geometry1 = new THREE.BoxGeometry(2, 1, 1);
+            // let geometry2 = new THREE.BoxGeometry(2,3,2)
+            
+            let geoBall1 = new THREE.SphereGeometry()
+            let geoBall2 = new THREE.SphereGeometry()
+            let geoBall3 = new THREE.SphereGeometry()
+            let geoCone = new THREE.ConeGeometry()
+
+            //material
+            let materialBall = new THREE.MeshBasicMaterial({ color: 'white' });
+            let materialCone = new THREE.MeshBasicMaterial({color: 'orange'})
+
+            /* BALL */
+            ball1 = new THREE.Mesh(geoBall1,materialBall)
+            ball2 = new THREE.Mesh(geoBall2,materialBall)
+            ball3 = new THREE.Mesh(geoBall3,materialBall)
+            nose = new THREE.Mesh(geoCone,materialCone)
+
+            ball1.position.x = 0
+            ball1.position.y = -0.3
+            ball2.position.x = 0
+            ball2.position.y = -2.1
+            ball3.position.x = 0
+            ball3.position.y = -4
+            nose.position.x = 2
+            nose.position.y = 2
+            nose.position.z = 2
+
+            ball3.scale.x = 1.8; // SCALE
+            ball3.scale.y = 1.5; // SCALE
+            ball3.scale.z = 1.5; // SCALE
+            ball2.scale.x = 1.3; // SCALE
+            ball2.scale.y = 1.2; // SCALE
+            ball2.scale.z = 1.2; // SCALE
+            nose.scale.x = 0.1
+            nose.scale.y = 0.1
+
+            /* LIGAções */
+            scene.add(ball1); // place the shoulder aligned with the world CS
+            scene.add(ball2);
+            scene.add(ball3);
+            scene.add(nose)
+            // ball1.add(ball2)
+            // ball2.add(ball3)
+            // show axes for the ARM CS
+            // let axesArm = new THREE.AxesHelper(2);
+            // arm.add(axesArm);
+
+
+
+            /*****************************
+             * ANIMATE 
+             * ***************************/
+            // set the animation function
+            renderer.setAnimationLoop(render);
+        }
+
+        /*****************************
+        * ANIMATION FUNCTION 
+        * ***************************/
+         function render() {
+             // rotate the shoulder around its Z-axis (on key S)
+             if (shoulderRotationUp)
+                 ball1.rotation.x += 0.01;
+
+             if (shoulderRotationDown)
+                 ball1.rotation.x -= 0.01;
+             // rotate the elbow around its Z-axis (on key E)
+             if (elbowRotationUp)
+                 ball1.rotation.x += 0.01;
+
+             if (elbowRotationDown)
+                 ball1.rotation.x -= 0.01;
+             // render the scene into viewport using the camera
+             renderer.render(scene, camera);
+         }
+
+
+        /*****************************
+        * KEYBOARD EVENTS 
+        * ***************************/
+         document.addEventListener("keydown", event => {
+             if (event.key == 'a') {
+                 shoulderRotationUp = true;
+             }
+             if (event.key == 's') {
+                 shoulderRotationDown = true
+             }
+             if (event.key == 'e') {
+                 elbowRotationUp = true;
+             }
+             if (event.key == 'r') {
+                 elbowRotationDown = true;
+             }
+                
+             if (event.key == 'w') {
+                 ball2.children[1].material.wireframe = true;
+                 // HINT: inspect elbow object with console.log(elbow)
+             }
+         })
+
+         document.addEventListener("keyup", event => {
+             if (event.key == 'a') {
+                 shoulderRotationUp = false;
+             }
+             if (event.key == 's') {
+                 shoulderRotationDown = false;
+             }
+             if (event.key == 'e') {
+                 elbowRotationUp = false;
+             }
+             if (event.key == 'r') {
+                elbowRotationDown = false;
+            }
+            if (event.key == 'w') {
+                 ball1.children[1].material.wireframe = false
+            }
+         })
+
+    </script>
+</body>
+
+</html>
