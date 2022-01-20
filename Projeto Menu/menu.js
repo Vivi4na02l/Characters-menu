@@ -77,7 +77,7 @@ window.onload = function init() {
     /** GEOMETRY */
     let geoFlatCircle = new THREE.CircleGeometry(circleSize.r, 100)
     let geoPole = new THREE.CylinderGeometry(poleSize.x,poleSize.y,poleSize.z)
-    // let geoPole = new THREE.CylinderGeometry(subGroundSize.x,subGroundSize.y,subGroundSize.z)
+
 
     /** STAGE */
     flatCircle = new THREE.Mesh(geoFlatCircle, circle)
@@ -326,7 +326,7 @@ function cacto() {
     /* VASE */
     vase = new THREE.Mesh(geoVase, matVase);
     vase.position.x = 0
-    vase.position.y = -2
+    vase.position.y = -1.5
     vase.rotation.z = 3.15
 
     /* TRUNK */
@@ -347,7 +347,7 @@ function cacto() {
     leftEye.position.y = 1.5
 
     leftBlackEye = new THREE.Mesh(geoBlackEye, matBlackEye);
-    leftBlackEye.position.z = 1
+    leftBlackEye.position.z = 0.25
     leftBlackEye.position.x = -0.1
     leftBlackEye.position.y = 0.2
 
@@ -358,7 +358,7 @@ function cacto() {
     rightEye.position.y = 1.5
 
     rightBlackEye = new THREE.Mesh(geoBlackEye, matBlackEye);
-    rightBlackEye.position.z = 1
+    rightBlackEye.position.z = 0.25
     rightBlackEye.position.x = -0.1
     rightBlackEye.position.y = 0.2
 
@@ -575,6 +575,8 @@ function handleMouseMove(event) {
 * KEYBOARD EVENTS 
 * ***************************/
 document.addEventListener("keydown", event => {
+
+    /** Sackboy's eventListeners */
     if (event.key == 'i') {
         shoulderRRotation = true
         shoulderRRotationDown = false
@@ -597,15 +599,35 @@ document.addEventListener("keydown", event => {
         jumpingUp = true
     }
 
+
+    /** Cacto's eventListeners */
+    if (event.key == 'a') {
+        shoulderRotation = true;
+    }
+    if (event.key == 's') {
+        shoulderRotationH = true;
+    }
+    if (event.key == 'q') {
+        elbowRotation = true;
+    }
+    if (event.key == 'e') {
+        elbowRotationH = true;
+    }
+
+
+    /** Stage's eventListeners */
     if (event.key == 'ArrowRight') {
         circleRotationRight = true
     }
     if (event.key == 'ArrowLeft') {
         circleRotationLeft = true
     }
+
 })
 
 document.addEventListener("keyup", event => {
+
+    /** Sackboy's eventListeners */
     if (event.key == 'j') {
         shoulderRRotation = false
         shoulderRRotationDown = true
@@ -624,6 +646,23 @@ document.addEventListener("keyup", event => {
         elbowLRotationDown = true
     }
 
+
+    /** Cacto's eventListeners */
+    if (event.key == 'a') {
+        shoulderRotation = false;
+    }
+    if (event.key == 's') {
+        shoulderRotationH = false;
+    }
+    if (event.key == 'q') {
+        elbowRotation = false;
+    }
+    if (event.key == 'e') {
+        elbowRotationH = false;
+    }
+
+
+    /** Stage's eventListeners */
     if (event.key == 'ArrowRight') {
         circleRotationRight = false
     }
