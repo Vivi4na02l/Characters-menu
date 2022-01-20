@@ -3,7 +3,7 @@ import * as THREE from './libs/three.module.js';
 
 
 let camera, scene, renderer;
-        let shoulderRight, elbow, trunk, vase, topTrunk, leftEye, leftBlackEye, rightEye, rightBlackEye; // PIVOTS (Object3D)
+        let shoulderRight, elbow, trunk, vase, topTrunk, leftEye, leftBlackEye, rightEye, rightBlackEye, mouth, thongue; // PIVOTS (Object3D)
         
         let shoulderRotation = false
         let shoulderRotationH = false
@@ -54,17 +54,17 @@ let camera, scene, renderer;
             let geoVase = new THREE.CylinderGeometry(1, 1.5,1)
             let geoEye = new THREE.SphereGeometry(0.3)
             let geoBlackEye = new THREE.SphereGeometry(0.1)
+            let geoMouth = new THREE.SphereGeometry(0.18)
+            let geoThongue = new THREE.SphereGeometry(0.08)
     
             // MATERIAL
             let matVase = new THREE.MeshBasicMaterial({ color:"white" });
             let matTrunk = new THREE.MeshBasicMaterial({ color: "green" });
             let matTopTrunk = new THREE.MeshBasicMaterial({ color: "green" });
             let matBlackEye = new THREE.MeshBasicMaterial({ color: "black" });
+            let matThongue = new THREE.MeshBasicMaterial({ color: "red" });
 
-            // const geometry = new THREE.CylinderGeometry( 5, 5, 20, 32 );
-            // const material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
-            // const cylinder = new THREE.Mesh( geometry, material );
-            // scene.add( cylinder );
+          
 
             /* VASE */
             vase = new THREE.Mesh(geoVase, matVase);
@@ -105,8 +105,20 @@ let camera, scene, renderer;
             rightBlackEye.position.x = -0.1
             rightBlackEye.position.y = 0.2
 
+            /* Mouth */
 
+            mouth = new THREE.Mesh(geoMouth, matBlackEye);
+            mouth.position.z = 1
+            mouth.position.x = 0.20
+            mouth.position.y = 0.80
 
+            /* Thongue */
+
+            thongue = new THREE.Mesh(geoThongue, matThongue);
+            thongue.position.z = 1
+            thongue.position.x = 0.02
+            thongue.position.y = 0.10
+            
             /* SHOULDER */
             shoulderRight = new THREE.Object3D();
             
@@ -158,7 +170,8 @@ let camera, scene, renderer;
 
             scene.add(trunk);
             trunk.add(topTrunk)
-            // topTrunk.add(cylinder);
+            trunk.add(mouth)
+            mouth.add(thongue)
             trunk.add(leftEye)
             leftEye.add(leftBlackEye)
             trunk.add(rightEye)
@@ -272,6 +285,7 @@ let camera, scene, renderer;
             if (targetY >  -23){ 
                 leftEye.position.z = (targetY - leftEye.position.y + 100) * 0.013;
                 rightEye.position.z = (targetY - rightEye.position.y + 100) * 0.013;
+                mouth.position.z = (targetY - mouth.position.y + 100) * 0.013;
             }
 
             
