@@ -452,21 +452,26 @@ function bonecoNeve() {
     let geoBall1 = new THREE.SphereGeometry(ball1Scale.r)
     let geoBall2 = new THREE.SphereGeometry(ball2Scale.r)
     let geoBall3 = new THREE.SphereGeometry(ball3Scale.r)
-    let geoCone = new THREE.ConeGeometry(0.3,0.9,64)
-    let geoEye = new THREE.SphereGeometry(eyeSize.r);
+    let geoCone = new THREE.ConeGeometry(0.2,1,64)
+    let geoEye = new THREE.SphereGeometry(eyeSize.r)
+    let geoButton = new THREE.CylinderGeometry(0.14,0.14,0.15,8,)
 
     // material
-    let materialBall = new THREE.MeshPhongMaterial({ color: 'white' });
+    let materialBall = new THREE.MeshPhongMaterial({ color: 'white' })
     let materialCone = new THREE.MeshPhongMaterial({ color: 'orange' })
-    let materialEye = new THREE.MeshPhongMaterial({ color: 'black' });
+    let materialEye = new THREE.MeshPhongMaterial({ color: 'black' })
+    let materialButton = new THREE.MeshPhongMaterial({ color: 'black'})
 
     // mesh
     ball1 = new THREE.Mesh(geoBall1,materialBall)
     ball2 = new THREE.Mesh(geoBall2,materialBall)
     ball3 = new THREE.Mesh(geoBall3,materialBall)
     nose = new THREE.Mesh(geoCone,materialCone)
-    let eyeR = new THREE.Mesh(geoEye, materialEye);
-    let eyeL = new THREE.Mesh(geoEye, materialEye);
+    let eyeR = new THREE.Mesh(geoEye, materialEye)
+    let eyeL = new THREE.Mesh(geoEye, materialEye)
+    let button1 = new THREE.Mesh(geoButton,materialButton)
+    let button2 = new THREE.Mesh(geoButton,materialButton)
+    let button3 = new THREE.Mesh(geoButton,materialButton)
     
     // position
     ball1.position.x = 0
@@ -479,30 +484,43 @@ function bonecoNeve() {
     ball2.position.y = ball2Scale.r + ball3Scale.r/2
 
     nose.position.z = ball3Scale.r
-    nose.geometry.rotateX( Math.PI / 2 );
+    nose.geometry.rotateX( Math.PI / 2 )
 
     eyeR.position.set(ball3Scale.r/2-eyeSize.r/2 , .2 , ball3Scale.r)
     eyeL.position.set(-(ball3Scale.r/2-eyeSize.r/2) , .2 , ball3Scale.r)
     eyeL.position.z = 0.9
     eyeR.position.z = 0.9
 
+    button1.position.z = ball2Scale.r -0.15
+    button2.position.z = ball2Scale.r
+    button3.position.z = ball2Scale.r
+    button1.position.y = 0.6
+    button2.position.y = 0.2
+    button3.position.y = -0.2
+    button1.geometry.rotateX( Math.PI / 2 )
+    button2.geometry.rotateX( Math.PI / 2 )
+    button3.geometry.rotateX( Math.PI / 2 )
+
     // nose.scale.x = 0.3
     // nose.scale.y = 0.5
     /** BonecoNeve's location on stage */
-    let bonecoNevePos = new THREE.Object3D();
+    let bonecoNevePos = new THREE.Object3D()
     bonecoNevePos.rotation.x = Math.PI/2
     bonecoNevePos.rotation.y = Math.PI/2
     bonecoNevePos.position.z = ball1.scale.y/2
     bonecoNevePos.position.x = -(-circleSize.r + circleSize.r/10)
 
     /* LIGAÇÕES */
-    flatCircle.add(bonecoNevePos);
-    bonecoNevePos.add(ball1);
-    ball1.add(ball2);
-    ball2.add(ball3);
-    ball3.add(nose);
+    flatCircle.add(bonecoNevePos)
+    bonecoNevePos.add(ball1)
+    ball1.add(ball2)
+    ball2.add(ball3)
+    ball3.add(nose)
     ball3.add(eyeR)
     ball3.add(eyeL)
+    ball2.add(button1)
+    ball2.add(button2)
+    ball2.add(button3)
 }
 
 /*****************************
@@ -512,39 +530,39 @@ function render() {
     /** ---------- Sackboy's animations ---------- */
     if (shoulderRRotation) {
         if (shoulderR.rotation.z < 2) {
-            shoulderR.rotation.z += 0.01;
+            shoulderR.rotation.z += 0.01
         }
     } else if (!shoulderRRotation && shoulderRRotationDown) {
         if (shoulderR.rotation.z > 0.27) {
-            shoulderR.rotation.z -= 0.01;
+            shoulderR.rotation.z -= 0.01
         }
     }
 
     if (shoulderLRotation) {
         if (shoulderL.rotation.z > -2) {
-            shoulderL.rotation.z -= 0.01;
+            shoulderL.rotation.z -= 0.01
         }
     } else if (!shoulderLRotation && shoulderLRotationDown) {
         if (shoulderL.rotation.z < -0.27) {
-            shoulderL.rotation.z += 0.01;
+            shoulderL.rotation.z += 0.01
         }
     }
-    
+
     if (elbowRRotation) {
         if (elbowR.rotation.z < 1.4)
-            elbowR.rotation.z += 0.01;
+            elbowR.rotation.z += 0.01
     } else if (!elbowRRotation && elbowRRotationDown) {
         if (elbowR.rotation.z > 0) {
-            elbowR.rotation.z -= 0.01;
+            elbowR.rotation.z -= 0.01
         }
     }
 
     if (elbowLRotation) {
         if (elbowL.rotation.z > -1.4)
-            elbowL.rotation.z -= 0.01;
+            elbowL.rotation.z -= 0.01
     } else if (!elbowLRotation && elbowLRotationDown) {
         if (elbowL.rotation.z < 0) {
-            elbowL.rotation.z += 0.01;
+            elbowL.rotation.z += 0.01
         }
     }
     
