@@ -719,12 +719,12 @@ function render() {
         }
     } else {
         if (rightShoulder.rotation.z > 0.8) {
-            rightShoulder.rotation.z -= 0.01
-            leftShoulder.rotation.z += 0.01
+            rightShoulder.rotation.z -= 0.02
+            leftShoulder.rotation.z += 0.02
         }
         if (leftElbow.rotation.z < 0) {
-            leftElbow.rotation.z += 0.02
-            rightElbow.rotation.z -= 0.02
+            leftElbow.rotation.z += 0.03
+            rightElbow.rotation.z -= 0.03
         }
         if (ball3.position.y > 1.66) {
             ball3.position.y -= 0.015
