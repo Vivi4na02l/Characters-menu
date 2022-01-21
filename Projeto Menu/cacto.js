@@ -83,7 +83,7 @@ window.onload = function init() {
 
     //left
     leftEye = new THREE.Mesh(geoEye, matVase);
-    leftEye.position.z = 1
+    leftEye.position.z = -5
     leftEye.position.x = -0.3
     leftEye.position.y = 1.5
 
