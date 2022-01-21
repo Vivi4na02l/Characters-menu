@@ -29,6 +29,9 @@ let shoulderRotationH = false
 let elbowRotation = false
 let elbowRotationH = false
 
+/** boneco de neve's global animation variables */
+let snowmanAnimation = false
+
 // once everything is loaded, we run our Three.js stuff
 window.onload = function init() {
 
@@ -188,7 +191,6 @@ function sackboy(flatCircle, circleSize) {
     let dress = new THREE.MeshPhongMaterial({ map: dressColor });
 
     // let materialSkin = new THREE.MeshBasicMaterial({ color: 0xa88e64 });
-    
 
     /** OBJ. SIZES */
     headSize = { r:1.2 }
@@ -265,7 +267,6 @@ function sackboy(flatCircle, circleSize) {
     let handL = new THREE.Mesh(geoHand, skin);
     handL.position.y = -forearmSize.z/2 - handSize.r/2
     
-
     /** LEGS */
     let legR = new THREE.Mesh(geoLeg, skin);
     legR.position.x = bodySize.y/3
@@ -345,7 +346,6 @@ function sackboy(flatCircle, circleSize) {
     body.rotation.y = Math.PI
     body.position.z = bodySize.y + legSize.z + shoesSize.z
     body.position.y = -(-circleSize.r + circleSize.r/10)
-
 }
 
 function cacto() {
@@ -479,6 +479,8 @@ function bonecoNeve() {
     let ball2Scale = { r:1.3 }
     let ball3Scale = { r:1 }
     let eyeSize = { r:0.12 }
+    let armSize = { x:0.1 , y:0.1 , z:1 }
+    let forearmSize = { x:armSize.y , y:armSize.x , z:armSize.z }
 
     // geometry
     let geoBall1 = new THREE.SphereGeometry(ball1Scale.r)
@@ -488,6 +490,8 @@ function bonecoNeve() {
     let geoEye = new THREE.SphereGeometry(eyeSize.r)
     let geoButton = new THREE.CylinderGeometry(0.14,0.14,0.15,64)
     let geoMouth = new THREE.CylinderGeometry(0.06,0.06,0.09,64)
+    let geoArm = new THREE.CylinderGeometry(armSize.x, armSize.y, armSize.z);
+    let geoForearm = new THREE.CylinderGeometry(forearmSize.x, forearmSize.y, forearmSize.z)
 
     // material
     let materialBall = new THREE.MeshPhongMaterial({ color: 'white' })
@@ -495,6 +499,7 @@ function bonecoNeve() {
     let materialEye = new THREE.MeshPhongMaterial({ color: 'black' })
     let materialButton = new THREE.MeshPhongMaterial({ color: 'black'})
     let materialMouth = new THREE.MeshPhongMaterial({ color: 'black'})
+    let materialArm = new THREE.MeshPhongMaterial({ color: '#6C5042'})
 
     // mesh
     ball1 = new THREE.Mesh(geoBall1,materialBall)
@@ -511,7 +516,34 @@ function bonecoNeve() {
     let mouth3 = new THREE.Mesh(geoMouth,materialMouth)
     let mouth4 = new THREE.Mesh(geoMouth,materialMouth)
     let mouth5 = new THREE.Mesh(geoMouth,materialMouth)
+
+    /** ARMS */
+    let armR = new THREE.Mesh(geoArm, materialArm);
+    armR.position.y = -armSize.z/2
+    let armL = new THREE.Mesh(geoArm, materialArm);
+    armL.position.y = -armSize.z/2
+
+    /** FOREARMS */
+    let forearmR = new THREE.Mesh(geoForearm, materialArm);
+    forearmR.position.y = -armSize.z/2
+    let forearmL = new THREE.Mesh(geoForearm, materialArm);
+    forearmL.position.y = -armSize.z/2
+
     
+    /** ELBOW(PIVOT) */
+    elbowR = new THREE.Object3D();
+    elbowR.position.y = -armSize.z/2
+    elbowL = new THREE.Object3D();
+    elbowL.position.y = -armSize.z/2
+
+    /** SHOULDER(PIVOT) */
+    shoulderR = new THREE.Object3D();
+    shoulderR.position.set(ball2Scale.r/2 + armSize.x, ball2Scale.r/2 , 0)
+    shoulderR.rotation.z = 0.8
+    shoulderL = new THREE.Object3D();
+    shoulderL.position.set(-ball2Scale.r/2 - armSize.x, ball2Scale.r/2 , 0)
+    shoulderL.rotation.z = -0.8
+
     // position
     ball1.position.x = 0
     ball1.position.y = ball1Scale.r/2
@@ -560,7 +592,6 @@ function bonecoNeve() {
     mouth3.geometry.rotateX(Math.PI / 2)
     mouth4.geometry.rotateX(Math.PI / 2)
     mouth5.geometry.rotateX(Math.PI / 2)
-    
 
     // nose.scale.x = 0.3
     // nose.scale.y = 0.5
@@ -589,6 +620,15 @@ function bonecoNeve() {
     ball3.add(mouth3)
     ball3.add(mouth4)
     ball3.add(mouth5)
+
+    ball2.add(shoulderL)
+    ball2.add(shoulderR)
+    shoulderL.add(armL)
+    shoulderR.add(armR)
+    armL.add(elbowL)
+    armR.add(elbowR)
+    elbowL.add(forearmL)
+    elbowR.add(forearmR)
 }
 
 /*****************************
@@ -633,7 +673,7 @@ function render() {
             elbowL.rotation.z += 0.01
         }
     }
-    
+
     // jumping animation
     if (jumpingUp && !jumpingDown && body.position.z != bodySize.y) {
         body.position.z += 0.1
@@ -658,7 +698,7 @@ function render() {
         elbow.rotation.z += 0.01;
     if (elbowRotationH)
         elbow.rotation.z -= 0.01;
-    
+
     let targetY = mousePos.y * 100;
     if (targetY >  -23) {
         leftEye.position.z = (targetY - leftEye.position.y + 100) * 0.013;
@@ -666,8 +706,36 @@ function render() {
         mouth.position.z = (targetY - mouth.position.y + 100) * 0.013;
     }
 
-    /** ---------- BonecoNeve's animations ---------- */
+    /** ---------- bonecoNeve's animations ---------- */
+    if (snowmanAnimation) {
+        if (shoulderL.rotation.z > -2) {
+            shoulderL.rotation.z -= 0.01
+            shoulderR.rotation.z += 0.01
+        }
+        if (elbowR.rotation.z < 2) {
+            elbowR.rotation.z += 0.02
+            elbowL.rotation.z -= 0.02
+        }
+        console.log(ball3.position);
+        if (ball3.position.y < 2 && elbowR.rotation.z > 2) {
 
+            ball3.position.y += 0.02
+        }
+    } else {
+        if (shoulderR.rotation.z > 0.8) {
+            shoulderR.rotation.z -= 0.01
+            shoulderL.rotation.z += 0.01
+        }
+        if (elbowL.rotation.z < 0) {
+            elbowL.rotation.z += 0.02
+            elbowR.rotation.z -= 0.02
+        }
+        if (ball3.position.y > 1.66) {
+            ball3.position.y -= 0.01
+        }
+        
+    }
+    
 
     /** ---------- Stage's animations ---------- */
     if (circleRotationRight) {
@@ -738,6 +806,13 @@ document.addEventListener("keydown", event => {
     }
 
 
+    /** bonecoNeve's eventListeners */
+    if (event.key == 'z') {
+        snowmanAnimation = true
+    }
+
+
+
     /** Stage's eventListeners */
     if (event.key == 'ArrowRight') {
         circleRotationRight = true
@@ -769,7 +844,6 @@ document.addEventListener("keyup", event => {
         elbowLRotationDown = true
     }
 
-
     /** Cacto's eventListeners */
     if (event.key == 'a') {
         shoulderRotation = false;
@@ -783,6 +857,12 @@ document.addEventListener("keyup", event => {
     if (event.key == 'e') {
         elbowRotationH = false;
     }
+
+    /** bonecoNeve's eventListeners */
+    if (event.key == 'z') {
+        snowmanAnimation = false;
+    }
+
 
 
     /** Stage's eventListeners */
