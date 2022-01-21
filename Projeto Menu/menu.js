@@ -439,31 +439,36 @@ function cacto() {
 }
 
 function bonecoNeve() {
-    let geometry1 = new THREE.BoxGeometry(2, 1, 1);
+    // let geometry1 = new THREE.BoxGeometry(2, 1, 1);
     // let geometry2 = new THREE.BoxGeometry(2,3,2)
 
     // scales
     let ball1Scale = { r:1.8 }
     let ball2Scale = { r:1.3 }
     let ball3Scale = { r:1 }
-    
+    let eyeSize = { r:0.12 }
+
     // geometry
     let geoBall1 = new THREE.SphereGeometry(ball1Scale.r)
     let geoBall2 = new THREE.SphereGeometry(ball2Scale.r)
     let geoBall3 = new THREE.SphereGeometry(ball3Scale.r)
-    let geoCone = new THREE.ConeGeometry()
+    let geoCone = new THREE.ConeGeometry(0.3,0.9,64)
+    let geoEye = new THREE.SphereGeometry(eyeSize.r);
 
     // material
-    let materialBall = new THREE.MeshBasicMaterial({ color: 'white' });
-    let materialCone = new THREE.MeshBasicMaterial({ color: 'orange' })
+    let materialBall = new THREE.MeshPhongMaterial({ color: 'white' });
+    let materialCone = new THREE.MeshPhongMaterial({ color: 'orange' })
+    let materialEye = new THREE.MeshPhongMaterial({ color: 'black' });
 
-    /* BALL */
+    // mesh
     ball1 = new THREE.Mesh(geoBall1,materialBall)
     ball2 = new THREE.Mesh(geoBall2,materialBall)
     ball3 = new THREE.Mesh(geoBall3,materialBall)
     nose = new THREE.Mesh(geoCone,materialCone)
-
-
+    let eyeR = new THREE.Mesh(geoEye, materialEye);
+    let eyeL = new THREE.Mesh(geoEye, materialEye);
+    
+    // position
     ball1.position.x = 0
     ball1.position.y = ball1Scale.r/2
 
@@ -473,11 +478,16 @@ function bonecoNeve() {
     ball2.position.x = 0
     ball2.position.y = ball2Scale.r + ball3Scale.r/2
 
-    nose.position.z = ball3Scale.r/2
+    nose.position.z = ball3Scale.r
+    nose.geometry.rotateX( Math.PI / 2 );
 
-    nose.scale.x = 0.1
-    nose.scale.y = 0.1
+    eyeR.position.set(ball3Scale.r/2-eyeSize.r/2 , .2 , ball3Scale.r)
+    eyeL.position.set(-(ball3Scale.r/2-eyeSize.r/2) , .2 , ball3Scale.r)
+    eyeL.position.z = 0.9
+    eyeR.position.z = 0.9
 
+    // nose.scale.x = 0.3
+    // nose.scale.y = 0.5
     /** BonecoNeve's location on stage */
     let bonecoNevePos = new THREE.Object3D();
     bonecoNevePos.rotation.x = Math.PI/2
@@ -491,6 +501,8 @@ function bonecoNeve() {
     ball1.add(ball2);
     ball2.add(ball3);
     ball3.add(nose);
+    ball3.add(eyeR)
+    ball3.add(eyeL)
 }
 
 /*****************************
