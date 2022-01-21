@@ -3,7 +3,7 @@ import * as THREE from './libs/three.module.js';
 let camera, scene, renderer;
 let cameraX = 0, cameraY = 2
 let flatCircle, circleSize
-
+let questionMark, questionBoxSize;
 
 /** sackboy's global variables */
 let shoulderR, shoulderL, elbowR, elbowL; // PIVOTS (Object3D)
@@ -58,26 +58,37 @@ window.onload = function init() {
     
     /* STAGE */
     /** IMAGENS/CORES */
-    let stageGround = new THREE.TextureLoader().load('images/stage/wood.png')
+    let stageGround = new THREE.TextureLoader().load('images/stage/pole.png')
     stageGround.wrapS = THREE.RepeatWrapping;
     stageGround.wrapT = THREE.RepeatWrapping;
     stageGround.repeat.set(5,5)
     let poleColor = new THREE.TextureLoader().load('images/stage/pole.png')
-    let stageSubGround = new THREE.TextureLoader().load('images/stage/pole.png')
+    let yellowBoxColor = new THREE.TextureLoader().load('images/stage/questionmark.png')
+
     
+
+    let greenGroundColor = new THREE.MeshBasicMaterial({ color: "#50aa44" });
+    let whiteGroundColor = new THREE.MeshBasicMaterial({ color: "#ededed" });
+    // let yellowBoxColor = new THREE.MeshBasicMaterial({ color: "yellow" });
+
     let circle = new THREE.MeshPhongMaterial({ map: stageGround })
     let poleStick = new THREE.MeshPhongMaterial({ map: poleColor })
-    let cylinderSubGround = new THREE.MeshPhongMaterial({ map: stageSubGround })
+    let yellowBox = new THREE.MeshPhongMaterial({ map: yellowBoxColor })
 
     /** SIZES */
     circleSize = { r:25 }
     let poleSize = { x:0.5 , y:0.5 , z:20 }
-    let subGroundSize = { x:circleSize.r, y:circleSize.r, z:4 }
+    let subGroundSize = { x:2, y:2, z:4 }
+    let groundSize = { x:500, y:500, z:500 }
+    questionBoxSize = { x:1, y:1, z:1 }
     
     /** GEOMETRY */
     let geoFlatCircle = new THREE.CircleGeometry(circleSize.r, 100)
     let geoPole = new THREE.CylinderGeometry(poleSize.x,poleSize.y,poleSize.z)
+    let geoCylinderSubGround = new THREE.CylinderGeometry(subGroundSize.x,subGroundSize.y,subGroundSize.z)
+    let geoGround = new THREE.BoxGeometry(groundSize.x,groundSize.y,groundSize.z)
 
+    let geoQuestionBox = new THREE.BoxGeometry(questionBoxSize.x,questionBoxSize.y,questionBoxSize.z)
 
     /** STAGE */
     flatCircle = new THREE.Mesh(geoFlatCircle, circle)
@@ -89,7 +100,27 @@ window.onload = function init() {
     pole.rotation.x = -Math.PI/2
     pole.position.z = poleSize.z/2
 
+    /** SUBSTAGE */
+    let subGround = new THREE.Mesh(geoCylinderSubGround, poleStick)
+    subGround.position.z = -subGround.scale.y
+    subGround.rotation.x = -Math.PI/2
+
+    /** GROUND */
+    let ground = new THREE.Mesh(geoGround, greenGroundColor)
+    ground.position.y = -groundSize.y/2 - 3.1
+    let whiteGround = new THREE.Mesh(geoGround, whiteGroundColor)
+    whiteGround.y = -groundSize.y/2 - 3.1
+
+    /** QUESTION MARKS */
+    questionMark = new THREE.Mesh(geoQuestionBox, yellowBox)
+    questionMark.position.x = 7
+    questionMark.position.y = groundSize.y/2 + questionBoxSize.y/2
+    questionMark.position.z = 2
+
     scene.add(flatCircle);
+    scene.add(ground);
+    ground.add(questionMark);
+    flatCircle.add(subGround);
     flatCircle.add(pole);
 
 
@@ -587,6 +618,13 @@ function handleMouseMove(event) {
     let tx = -1 + (event.clientX / window.innerWidth) * 2;
     let ty = 1 - (event.clientY / window.innerHeight) * 2;
     mousePos = { x: tx, y: ty };
+
+    // console.log('rato: '+event.clientX);
+    // console.log('?: '+questionMark.position.x);
+
+    // if (event.clientX >= questionMark.x) {
+    //     // alert('hm')
+    // }
 }
 
 /*****************************
