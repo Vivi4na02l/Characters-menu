@@ -4,7 +4,6 @@ let camera, scene, renderer;
 let cameraX = 0, cameraY = 2
 let flatCircle, circleSize
 
-
 /** sackboy's global variables */
 let shoulderR, shoulderL, elbowR, elbowL; // PIVOTS (Object3D)
 let body, bodySize, legSize, headSize, shoesSize;
@@ -58,26 +57,45 @@ window.onload = function init() {
     
     /* STAGE */
     /** IMAGENS/CORES */
-    let stageGround = new THREE.TextureLoader().load('images/stage/wood.png')
+    let stageGround = new THREE.TextureLoader().load('images/stage/brick.jpg')
     stageGround.wrapS = THREE.RepeatWrapping;
     stageGround.wrapT = THREE.RepeatWrapping;
     stageGround.repeat.set(5,5)
     let poleColor = new THREE.TextureLoader().load('images/stage/pole.png')
-    let stageSubGround = new THREE.TextureLoader().load('images/stage/pole.png')
+    // HELPER
+    let helperContentImg = new THREE.TextureLoader().load('images/stage/helper.png')
+    let frameHelperImg = new THREE.TextureLoader().load('images/stage/wood.png')
+
     
+
+    let greenGroundColor = new THREE.MeshBasicMaterial({ color: "#50aa44" });
+    let whiteGroundColor = new THREE.MeshBasicMaterial({ color: "#ededed" });
+    let materialConeColor = new THREE.MeshPhongMaterial({ color: '#2c891e' })
+
     let circle = new THREE.MeshPhongMaterial({ map: stageGround })
     let poleStick = new THREE.MeshPhongMaterial({ map: poleColor })
-    let cylinderSubGround = new THREE.MeshPhongMaterial({ map: stageSubGround })
+    let materialCone = new THREE.MeshPhongMaterial({ map: materialConeColor })
+    // HELPER
+    let helperContent = new THREE.MeshPhongMaterial({ map: helperContentImg })
+    let frameHelperContent = new THREE.MeshPhongMaterial({ map: frameHelperImg })
 
     /** SIZES */
     circleSize = { r:25 }
     let poleSize = { x:0.5 , y:0.5 , z:20 }
-    let subGroundSize = { x:circleSize.r, y:circleSize.r, z:4 }
+    let subGroundSize = { x:2, y:2, z:4 }
+    let groundSize = { x:500, y:500, z:500 }
+    let geoHelperSize = { x:7, y:7, z:2 }
+    let frameHelperSize = { x:geoHelperSize.x+0.5, y:geoHelperSize.y+1, z:geoHelperSize.z+0.1 }
     
     /** GEOMETRY */
     let geoFlatCircle = new THREE.CircleGeometry(circleSize.r, 100)
     let geoPole = new THREE.CylinderGeometry(poleSize.x,poleSize.y,poleSize.z)
-
+    let geoCylinderSubGround = new THREE.CylinderGeometry(subGroundSize.x,subGroundSize.y,subGroundSize.z)
+    let geoGround = new THREE.BoxGeometry(groundSize.x,groundSize.y,groundSize.z)
+    let geoCone = new THREE.ConeGeometry(0.2,1,64)
+    // HELPER
+    let geoHelper = new THREE.BoxGeometry(geoHelperSize.x, geoHelperSize.y, geoHelperSize.z)
+    let geoFrameHelper = new THREE.BoxGeometry(frameHelperSize.x, frameHelperSize.y, frameHelperSize.z)
 
     /** STAGE */
     flatCircle = new THREE.Mesh(geoFlatCircle, circle)
@@ -89,8 +107,37 @@ window.onload = function init() {
     pole.rotation.x = -Math.PI/2
     pole.position.z = poleSize.z/2
 
+    /** SUBSTAGE */
+    let subGround = new THREE.Mesh(geoCylinderSubGround, poleStick)
+    subGround.position.z = -subGround.scale.y
+    subGround.rotation.x = -Math.PI/2
+
+    /** GROUND */
+    let ground = new THREE.Mesh(geoGround, greenGroundColor)
+    ground.position.y = -groundSize.y/2 - 3.1
+    let whiteGround = new THREE.Mesh(geoGround, whiteGroundColor)
+    whiteGround.y = -groundSize.y/2 - 3.1
+
+
+    /** Helper's location on stage */
+    let helperPos = new THREE.Object3D();
+    helperPos.rotation.x = Math.PI/2
+    helperPos.position.y = -circleSize.r + circleSize.r/10
+
+    /** HELPER */
+    let helper = new THREE.Mesh(geoHelper, helperContent)
+    helper.position.y = geoHelperSize.y/2 + 0.5
+
+    let frameHelper = new THREE.Mesh(geoFrameHelper, frameHelperContent)
+    frameHelper.position.z = -0.1
+
     scene.add(flatCircle);
+    scene.add(ground);
+    flatCircle.add(subGround);
     flatCircle.add(pole);
+    flatCircle.add(helperPos);
+    helperPos.add(helper);
+    helper.add(frameHelper);
 
 
     /** lights */
@@ -295,8 +342,9 @@ function sackboy(flatCircle, circleSize) {
 
     /* POSIÇÃO NO CÍRCULO */
     body.rotation.x = Math.PI/2
+    body.rotation.y = Math.PI
     body.position.z = bodySize.y + legSize.z + shoesSize.z
-    body.position.y = -circleSize.r + circleSize.r/10
+    body.position.y = -(-circleSize.r + circleSize.r/10)
 
 }
 
@@ -372,17 +420,16 @@ function cacto() {
 
     /* Tongue */
     thongue = new THREE.Mesh(geoThongue, matThongue);
-    thongue.position.z = 1
+    thongue.position.z = 0.14
     thongue.position.x = 0.02
-    thongue.position.y = 0.10
+    thongue.position.y = -0.05
 
     /* SHOULDER */
     shoulderRight = new THREE.Object3D();
-    // show axes for the SHOULDER CS
-    let axesShoulder = new THREE.AxesHelper(4);
 
     /* ARM */
     let arm = new THREE.Mesh(geometry, matTrunk);
+    arm.rotation.z = 1.6
     arm.position.x = 0.4+1
     // show axes for the ARM CS
     let axesArm = new THREE.AxesHelper(2);
@@ -392,21 +439,11 @@ function cacto() {
     elbow.position.x = 0
     elbow.position.y = -0.6
 
-    // show axes for the SHOULDER CS
-    let axesElbow = new THREE.AxesHelper(4);
-    arm.rotation.z = 1.6
-    axesElbow.position.x = -3
-
     /* FOREARM */
     let forearm = new THREE.Mesh(geometry, matTrunk);
     // forearm.position.x = -2
     forearm.position.y = -0.4
     // forearm.rotation.z = 1.6
-    
-
-    // show axes for the FOREARM CS
-    let axesForearm = new THREE.AxesHelper(2);
-    axesForearm.position.x = -5
 
     /** Cacto's location on stage */
     let cactoPos = new THREE.Object3D();
@@ -427,14 +464,10 @@ function cacto() {
     trunk.add(rightEye);
     rightEye.add(rightBlackEye);
     trunk.add(vase);
-    shoulderRight.add(axesShoulder);
     trunk.add(shoulderRight);
     shoulderRight.add(arm);// add the ARM to the SHOULDER
-    arm.add(axesArm);
     arm.add(elbow); // add the ELBOW to the ARM
-    elbow.add(axesElbow);
     elbow.add(forearm);// add the FOREARM to the ELBOW
-    forearm.add(axesForearm);
 }
 
 function bonecoNeve() {
@@ -652,6 +685,13 @@ function handleMouseMove(event) {
     let tx = -1 + (event.clientX / window.innerWidth) * 2;
     let ty = 1 - (event.clientY / window.innerHeight) * 2;
     mousePos = { x: tx, y: ty };
+
+    // console.log('rato: '+event.clientX);
+    // console.log('?: '+questionMark.position.x);
+
+    // if (event.clientX >= questionMark.x) {
+    //     // alert('hm')
+    // }
 }
 
 /*****************************
