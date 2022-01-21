@@ -3,6 +3,8 @@ import * as THREE from './libs/three.module.js';
 let camera, scene, renderer;
 let cameraX = 0, cameraY = 2
 let flatCircle, circleSize
+let rotation = 0
+let groundColor = "#50aa44"
 
 /** sackboy's global variables */
 let shoulderR, shoulderL, elbowR, elbowL; // PIVOTS (Object3D)
@@ -69,15 +71,9 @@ window.onload = function init() {
     let helperContentImg = new THREE.TextureLoader().load('images/stage/helper.png')
     let frameHelperImg = new THREE.TextureLoader().load('images/stage/wood.png')
 
-    
-
-    let greenGroundColor = new THREE.MeshBasicMaterial({ color: "#50aa44" });
-    let whiteGroundColor = new THREE.MeshBasicMaterial({ color: "#ededed" });
-    let materialConeColor = new THREE.MeshPhongMaterial({ color: '#2c891e' })
 
     let circle = new THREE.MeshPhongMaterial({ map: stageGround })
     let poleStick = new THREE.MeshPhongMaterial({ map: poleColor })
-    let materialCone = new THREE.MeshPhongMaterial({ map: materialConeColor })
     // HELPER
     let helperContent = new THREE.MeshPhongMaterial({ map: helperContentImg })
     let frameHelperContent = new THREE.MeshPhongMaterial({ map: frameHelperImg })
@@ -86,7 +82,6 @@ window.onload = function init() {
     circleSize = { r:25 }
     let poleSize = { x:0.5 , y:0.5 , z:20 }
     let subGroundSize = { x:2, y:2, z:4 }
-    let groundSize = { x:500, y:500, z:500 }
     let geoHelperSize = { x:7, y:7, z:2 }
     let frameHelperSize = { x:geoHelperSize.x+0.5, y:geoHelperSize.y+1, z:geoHelperSize.z+0.1 }
     
@@ -94,8 +89,6 @@ window.onload = function init() {
     let geoFlatCircle = new THREE.CircleGeometry(circleSize.r, 100)
     let geoPole = new THREE.CylinderGeometry(poleSize.x,poleSize.y,poleSize.z)
     let geoCylinderSubGround = new THREE.CylinderGeometry(subGroundSize.x,subGroundSize.y,subGroundSize.z)
-    let geoGround = new THREE.BoxGeometry(groundSize.x,groundSize.y,groundSize.z)
-    let geoCone = new THREE.ConeGeometry(0.2,1,64)
     // HELPER
     let geoHelper = new THREE.BoxGeometry(geoHelperSize.x, geoHelperSize.y, geoHelperSize.z)
     let geoFrameHelper = new THREE.BoxGeometry(frameHelperSize.x, frameHelperSize.y, frameHelperSize.z)
@@ -115,12 +108,6 @@ window.onload = function init() {
     subGround.position.z = -subGround.scale.y
     subGround.rotation.x = -Math.PI/2
 
-    /** GROUND */
-    let ground = new THREE.Mesh(geoGround, greenGroundColor)
-    ground.position.y = -groundSize.y/2 - 3.1
-    let whiteGround = new THREE.Mesh(geoGround, whiteGroundColor)
-    whiteGround.y = -groundSize.y/2 - 3.1
-
 
     /** Helper's location on stage */
     let helperPos = new THREE.Object3D();
@@ -135,13 +122,14 @@ window.onload = function init() {
     frameHelper.position.z = -0.1
 
     scene.add(flatCircle);
-    scene.add(ground);
     flatCircle.add(subGround);
     flatCircle.add(pole);
     flatCircle.add(helperPos);
     helperPos.add(helper);
     helper.add(frameHelper);
 
+    /** ground */
+    groundFunction()
 
     /** lights */
     lights()
@@ -161,6 +149,16 @@ window.onload = function init() {
      * ***************************/
     // set the animation function
     renderer.setAnimationLoop(render);
+}
+
+function groundFunction() {
+    /** GROUND */
+    let greenGroundColor = new THREE.MeshBasicMaterial({ color: groundColor });
+    let groundSize = { x:500, y:500, z:500 }
+    let geoGround = new THREE.BoxGeometry(groundSize.x,groundSize.y,groundSize.z)
+    let ground = new THREE.Mesh(geoGround, greenGroundColor)
+    ground.position.y = -groundSize.y/2 - 3.1
+    scene.add(ground);
 }
 
 function lights() {
@@ -739,9 +737,53 @@ function render() {
 
     /** ---------- Stage's animations ---------- */
     if (circleRotationRight) {
+
         flatCircle.rotation.z += 0.01
+
+        rotation += 0.01
+
+        if (rotation <= 6.24 && rotation >= 6.23) {
+            rotation = 0
+        }
+
+        console.log(rotation);
+
+        /** CHÃO BONECO DE NEVE */
+        if (rotation >= 4.05 && rotation <= 5.45) {
+            groundColor = "#F7F7F7"
+        } else if (rotation >= 0.75 && rotation <= 2.25) {
+            groundColor = "#ddcb75"
+        } else if (rotation > 2.25 && rotation < 4.05) {
+            groundColor = "#50aa44"
+        } else {
+            groundColor = "#50aa44"
+        }
+
+        groundFunction();
+
     } if (circleRotationLeft) {
+
         flatCircle.rotation.z -= 0.01
+
+        rotation -= 0.01
+
+        if (rotation <= -6.23 && rotation >= -6.24) {
+            rotation = 0
+        }
+
+        /** CHÃO BONECO DE NEVE */
+        if (rotation <= -4.05 && rotation >= -5.45) {
+            groundColor = "#ddcb75"
+        } else if (rotation <= -0.75 && rotation >= -2.25) {
+            groundColor = "#F7F7F7"
+        } else if (rotation < -2.25 && rotation > -4.05) {
+            groundColor = "#50aa44"
+        } else {
+            groundColor = "#50aa44"
+        }
+
+        groundFunction();
+
     }
 
     // render the scene into viewport using the camera
@@ -753,13 +795,6 @@ function handleMouseMove(event) {
     let tx = -1 + (event.clientX / window.innerWidth) * 2;
     let ty = 1 - (event.clientY / window.innerHeight) * 2;
     mousePos = { x: tx, y: ty };
-
-    // console.log('rato: '+event.clientX);
-    // console.log('?: '+questionMark.position.x);
-
-    // if (event.clientX >= questionMark.x) {
-    //     // alert('hm')
-    // }
 }
 
 /*****************************
@@ -886,14 +921,4 @@ document.querySelector('#btnRight').addEventListener('click', e => {
     // camera.position.x = cameraX;
 
     flatCircle.rotation.z += 0.2
-})
-
-document.querySelector('#btnUp').addEventListener('click', e => {
-    cameraY = cameraY - 1
-    camera.position.y = cameraY;
-})
-
-document.querySelector('#btnDown').addEventListener('click', e => {
-    cameraY = cameraY + 1
-    camera.position.y = cameraY;
 })
