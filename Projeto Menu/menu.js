@@ -342,7 +342,6 @@ function cacto() {
     topTrunk.position.y = 2.1
 
     /* Eyes */
-
     //left
     leftEye = new THREE.Mesh(geoEye, matVase);
     leftEye.position.z = 1
@@ -454,13 +453,15 @@ function bonecoNeve() {
     let geoBall3 = new THREE.SphereGeometry(ball3Scale.r)
     let geoCone = new THREE.ConeGeometry(0.2,1,64)
     let geoEye = new THREE.SphereGeometry(eyeSize.r)
-    let geoButton = new THREE.CylinderGeometry(0.14,0.14,0.15,8,)
+    let geoButton = new THREE.CylinderGeometry(0.14,0.14,0.15,64)
+    let geoMouth = new THREE.CylinderGeometry(0.06,0.06,0.09,64)
 
     // material
     let materialBall = new THREE.MeshPhongMaterial({ color: 'white' })
     let materialCone = new THREE.MeshPhongMaterial({ color: 'orange' })
     let materialEye = new THREE.MeshPhongMaterial({ color: 'black' })
     let materialButton = new THREE.MeshPhongMaterial({ color: 'black'})
+    let materialMouth = new THREE.MeshPhongMaterial({ color: 'black'})
 
     // mesh
     ball1 = new THREE.Mesh(geoBall1,materialBall)
@@ -472,6 +473,11 @@ function bonecoNeve() {
     let button1 = new THREE.Mesh(geoButton,materialButton)
     let button2 = new THREE.Mesh(geoButton,materialButton)
     let button3 = new THREE.Mesh(geoButton,materialButton)
+    let mouth1 = new THREE.Mesh(geoMouth,materialMouth)
+    let mouth2 = new THREE.Mesh(geoMouth,materialMouth)
+    let mouth3 = new THREE.Mesh(geoMouth,materialMouth)
+    let mouth4 = new THREE.Mesh(geoMouth,materialMouth)
+    let mouth5 = new THREE.Mesh(geoMouth,materialMouth)
     
     // position
     ball1.position.x = 0
@@ -501,6 +507,28 @@ function bonecoNeve() {
     button2.geometry.rotateX( Math.PI / 2 )
     button3.geometry.rotateX( Math.PI / 2 )
 
+    mouth1.position.z = ball3Scale.r -0.05
+    mouth2.position.z = ball3Scale.r -0.05
+    mouth3.position.z = ball3Scale.r -0.05
+    mouth4.position.z = ball3Scale.r -0.05
+    mouth5.position.z = ball3Scale.r -0.05
+    mouth1.position.y = -0.20
+    mouth2.position.y = -0.30
+    mouth3.position.y = -0.35
+    mouth4.position.y = -0.30
+    mouth5.position.y = -0.20
+    mouth1.position.x = -0.4
+    mouth2.position.x = -0.2
+    mouth3.position.x = 0
+    mouth4.position.x = 0.2
+    mouth5.position.x = 0.4
+    mouth1.geometry.rotateX(Math.PI / 2)
+    mouth2.geometry.rotateX(Math.PI / 2)
+    mouth3.geometry.rotateX(Math.PI / 2)
+    mouth4.geometry.rotateX(Math.PI / 2)
+    mouth5.geometry.rotateX(Math.PI / 2)
+    
+
     // nose.scale.x = 0.3
     // nose.scale.y = 0.5
     /** BonecoNeve's location on stage */
@@ -510,7 +538,7 @@ function bonecoNeve() {
     bonecoNevePos.position.z = ball1.scale.y/2
     bonecoNevePos.position.x = -(-circleSize.r + circleSize.r/10)
 
-    /* LIGAÇÕES */
+    // connections
     flatCircle.add(bonecoNevePos)
     bonecoNevePos.add(ball1)
     ball1.add(ball2)
@@ -518,9 +546,16 @@ function bonecoNeve() {
     ball3.add(nose)
     ball3.add(eyeR)
     ball3.add(eyeL)
+
     ball2.add(button1)
     ball2.add(button2)
     ball2.add(button3)
+
+    ball3.add(mouth1)
+    ball3.add(mouth2)
+    ball3.add(mouth3)
+    ball3.add(mouth4)
+    ball3.add(mouth5)
 }
 
 /*****************************
