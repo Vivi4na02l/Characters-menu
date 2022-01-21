@@ -14,7 +14,7 @@ let body, bodySize, legSize, headSize, shoesSize;
 let shoulderRight, elbow, trunk, vase, topTrunk, leftEye, leftBlackEye, rightEye, rightBlackEye, mouth, thongue;
 
 /** bonecoNeve's global variables */
-let ball1, ball2, ball3, nose
+let ball1, ball2, ball3, nose, rightShoulder, leftShoulder, rightElbow, leftElbow
 
 /** sackboy's global animation variables */
 let circleRotationRight = false, circleRotationLeft = false
@@ -31,7 +31,7 @@ let shoulderRotationH = false
 let elbowRotation = false
 let elbowRotationH = false
 
-/** boneco de neve's global animation variables */
+/** bonecoNeve's global animation variables */
 let snowmanAnimation = false
 
 // once everything is loaded, we run our Three.js stuff
@@ -529,18 +529,18 @@ function bonecoNeve() {
 
     
     /** ELBOW(PIVOT) */
-    elbowR = new THREE.Object3D();
-    elbowR.position.y = -armSize.z/2
-    elbowL = new THREE.Object3D();
-    elbowL.position.y = -armSize.z/2
+    rightElbow = new THREE.Object3D();
+    rightElbow.position.y = -armSize.z/2
+    leftElbow = new THREE.Object3D();
+    leftElbow.position.y = -armSize.z/2
 
     /** SHOULDER(PIVOT) */
-    shoulderR = new THREE.Object3D();
-    shoulderR.position.set(ball2Scale.r/2 + armSize.x, ball2Scale.r/2 , 0)
-    shoulderR.rotation.z = 0.8
-    shoulderL = new THREE.Object3D();
-    shoulderL.position.set(-ball2Scale.r/2 - armSize.x, ball2Scale.r/2 , 0)
-    shoulderL.rotation.z = -0.8
+    rightShoulder = new THREE.Object3D();
+    rightShoulder.position.set(ball2Scale.r/2 + armSize.x, ball2Scale.r/2 , 0)
+    rightShoulder.rotation.z = 0.8
+    leftShoulder = new THREE.Object3D();
+    leftShoulder.position.set(-ball2Scale.r/2 - armSize.x, ball2Scale.r/2 , 0)
+    leftShoulder.rotation.z = -0.8
 
     // position
     ball1.position.x = 0
@@ -619,14 +619,14 @@ function bonecoNeve() {
     ball3.add(mouth4)
     ball3.add(mouth5)
 
-    ball2.add(shoulderL)
-    ball2.add(shoulderR)
-    shoulderL.add(armL)
-    shoulderR.add(armR)
-    armL.add(elbowL)
-    armR.add(elbowR)
-    elbowL.add(forearmL)
-    elbowR.add(forearmR)
+    ball2.add(leftShoulder)
+    ball2.add(rightShoulder)
+    leftShoulder.add(armL)
+    rightShoulder.add(armR)
+    armL.add(leftElbow)
+    armR.add(rightElbow)
+    leftElbow.add(forearmL)
+    rightElbow.add(forearmR)
 }
 
 /*****************************
@@ -706,32 +706,29 @@ function render() {
 
     /** ---------- bonecoNeve's animations ---------- */
     if (snowmanAnimation) {
-        if (shoulderL.rotation.z > -2) {
-            shoulderL.rotation.z -= 0.01
-            shoulderR.rotation.z += 0.01
+        if (leftShoulder.rotation.z > -2) {
+            leftShoulder.rotation.z -= 0.01
+            rightShoulder.rotation.z += 0.01
         }
-        if (elbowR.rotation.z < 2) {
-            elbowR.rotation.z += 0.02
-            elbowL.rotation.z -= 0.02
+        if (rightElbow.rotation.z < 2.1) {
+            rightElbow.rotation.z += 0.02
+            leftElbow.rotation.z -= 0.02
         }
-        console.log(ball3.position);
-        if (ball3.position.y < 2 && elbowR.rotation.z > 2) {
-
-            ball3.position.y += 0.02
+        if (ball3.position.y < 2 && rightElbow.rotation.z > 2.1) {
+            ball3.position.y += 0.008
         }
     } else {
-        if (shoulderR.rotation.z > 0.8) {
-            shoulderR.rotation.z -= 0.01
-            shoulderL.rotation.z += 0.01
+        if (rightShoulder.rotation.z > 0.8) {
+            rightShoulder.rotation.z -= 0.01
+            leftShoulder.rotation.z += 0.01
         }
-        if (elbowL.rotation.z < 0) {
-            elbowL.rotation.z += 0.02
-            elbowR.rotation.z -= 0.02
+        if (leftElbow.rotation.z < 0) {
+            leftElbow.rotation.z += 0.02
+            rightElbow.rotation.z -= 0.02
         }
         if (ball3.position.y > 1.66) {
-            ball3.position.y -= 0.01
+            ball3.position.y -= 0.015
         }
-        
     }
     
 
